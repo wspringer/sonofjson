@@ -6,7 +6,7 @@ case class Name(first: String, last: String)
 
 class JsonSpec extends Specification {
 
-  val parsed = Json.parse(
+  val person = Json.parse(
     """
       |{ "name": { "first": "John", "last": "Doe" }, "numbers": [9, 8, 7, 6] }
     """.stripMargin.trim
@@ -15,14 +15,14 @@ class JsonSpec extends Specification {
   "Json" should {
 
     "allow you to access data in a sensible way" in {
-      parsed.name.first.as[String] must be equalTo("John")
-      parsed.numbers(0).as[Int] must be equalTo(9)
-      parsed.name.as[Name] must be equalTo(Name("John", "Doe"))
+      person.name.first.as[String] must be equalTo("John")
+      person.numbers(0).as[Int] must be equalTo(9)
+      person.name.as[Name] must be equalTo(Name("John", "Doe"))
     }
 
     "allow you to build JSON objects the easy way" in {
       import Json.json
-      val obj = json.obj(
+      val person = json.obj(
         first = "John",
         last = "Doe",
         age = 41,
@@ -32,11 +32,11 @@ class JsonSpec extends Specification {
           city = "San Francisco"
         )
       )
-      obj.first.as[String] must be equalTo("John")
-      obj.last.as[String] must be equalTo("Doe")
-      obj.age.as[Int] must be equalTo(41)
-      obj.scala.as[Boolean] must be equalTo(true)
-      obj.address.city.as[String] must be equalTo("San Francisco")
+      person.first.as[String] must be equalTo("John")
+      person.last.as[String] must be equalTo("Doe")
+      person.age.as[Int] must be equalTo(41)
+      person.scala.as[Boolean] must be equalTo(true)
+      person.address.city.as[String] must be equalTo("San Francisco")
       ok
     }
 
