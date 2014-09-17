@@ -27,7 +27,7 @@ case class Named[T <: Ref](val parent: T, name: String) extends SubRef[T] {
 
 class Json(value: JValue, ref: Ref = Identity) extends Dynamic with DefaultFormats {
 
-  implicit val formats = DefaultFormats
+  private val formats = DefaultFormats
 
   def selectDynamic(name: String) = new Json(value \ name, ref.resolve(name))
 
@@ -41,7 +41,7 @@ class Json(value: JValue, ref: Ref = Identity) extends Dynamic with DefaultForma
     named.apply(index)
   }
 
-  def as[T](implicit mf: Manifest[T]) = value.extract[T]
+  def as[T](implicit mf: Manifest[T]) = value.extract[T](formats, mf)
 
   def path = ref.path
 
