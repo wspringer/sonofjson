@@ -21,7 +21,6 @@ class JsonSpec extends Specification {
     }
 
     "allow you to build JSON objects the easy way" in {
-      import Json._
       val person = obj(
         first = "John",
         last = "Doe",
