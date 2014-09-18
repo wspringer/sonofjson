@@ -38,7 +38,6 @@ class JsonSpec extends Specification {
       person.scala.as[Boolean] must be equalTo(true)
       person.address.city.as[String] must be equalTo("San Francisco")
       person.numbers(0).as[Int] must be equalTo(1)
-      ok
     }
 
   }
