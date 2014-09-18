@@ -6,7 +6,7 @@ case class Name(first: String, last: String)
 
 class JsonSpec extends Specification {
 
-  val person = Json.parse(
+  val person = parse(
     """
       |{ "name": { "first": "John", "last": "Doe" }, "numbers": [9, 8, 7, 6] }
     """.stripMargin.trim

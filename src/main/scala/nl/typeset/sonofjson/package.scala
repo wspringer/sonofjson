@@ -1,10 +1,13 @@
 package nl.typeset
 
 import org.json4s.JsonAST._
+import org.json4s.native.JsonMethods
 import org.json4s.{BigDecimalMode, Implicits}
 import scala.language.dynamics
 
 package object sonofjson {
+
+  def parse(str: String) = Json(JsonMethods.parse(str))
 
   object obj extends Dynamic with Implicits with BigDecimalMode {
 

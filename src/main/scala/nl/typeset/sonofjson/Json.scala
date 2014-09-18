@@ -69,8 +69,6 @@ class Json(private [sonofjson] val value: JValue, ref: Ref = Identity) extends D
 }
 
 object Json {
-  def parse(str: String) = Json(JsonMethods.parse(str))
-
   def apply(value: JValue) = new Json(value)
 
 }
