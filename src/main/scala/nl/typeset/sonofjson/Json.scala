@@ -73,10 +73,10 @@ object Json {
 
   def apply(value: JValue) = new Json(value)
 
-  object json extends Dynamic with Implicits with BigDecimalMode {
+  object obj extends Dynamic with Implicits with BigDecimalMode {
 
     def applyDynamicNamed(method: String)(args: (String, Any)*) = method match {
-      case "obj" =>
+      case "apply" =>
         Json(JObject(for ((name, value) <- args.toList) yield JField(name, value match {
           case i: Int => JInt(i)
           case i: Long => JInt(i)

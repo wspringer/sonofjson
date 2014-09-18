@@ -21,13 +21,13 @@ class JsonSpec extends Specification {
     }
 
     "allow you to build JSON objects the easy way" in {
-      import Json.json
-      val person = json.obj(
+      import Json.obj
+      val person = obj(
         first = "John",
         last = "Doe",
         age = 41,
         scala = true,
-        address = json.obj(
+        address = obj(
           street = "Columbus",
           city = "San Francisco"
         )
