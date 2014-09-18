@@ -21,7 +21,7 @@ class JsonSpec extends Specification {
     }
 
     "allow you to build JSON objects the easy way" in {
-      import Json.obj
+      import Json._
       val person = obj(
         first = "John",
         last = "Doe",
@@ -30,13 +30,15 @@ class JsonSpec extends Specification {
         address = obj(
           street = "Columbus",
           city = "San Francisco"
-        )
+        ),
+        numbers = arr(1, 4, 1, 111, 21)
       )
       person.first.as[String] must be equalTo("John")
       person.last.as[String] must be equalTo("Doe")
       person.age.as[Int] must be equalTo(41)
       person.scala.as[Boolean] must be equalTo(true)
       person.address.city.as[String] must be equalTo("San Francisco")
+      person.numbers(0).as[Int] must be equalTo(1)
       ok
     }
 

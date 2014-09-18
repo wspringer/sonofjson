@@ -91,6 +91,22 @@ object Json {
 
   }
 
+  object arr extends Dynamic with Implicits with BigDecimalMode {
+    def applyDynamic(method: String)(args: Any*) = method match {
+      case "apply" =>
+        Json(JArray(for (arg <- args.toList) yield arg match {
+          case i: Int => JInt(i)
+          case i: Long => JInt(i)
+          case d: Double => JDouble(d)
+          case d: Float => JDouble(d)
+          case s: String => JString(s)
+          case b: Boolean => JBool(b)
+          case obj: Json => obj.value
+          case other => throw NotSupportedException("Missing support for " + other.getClass)
+        }))
+    }
+  }
+
 }
 
 case class NotSupportedException(msg: String) extends Exception(msg)
