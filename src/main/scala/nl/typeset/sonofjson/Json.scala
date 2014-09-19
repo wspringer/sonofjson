@@ -1,7 +1,6 @@
 package nl.typeset.sonofjson
 
 import org.json4s._
-import org.json4s.native._
 import org.json4s.native.JsonMethods._
 
 import scala.language.dynamics
@@ -31,7 +30,7 @@ case class Named[T <: Ref](val parent: T, name: String) extends SubRef[T] {
   override val path = Some(parent.path.getOrElse(".") + name)
 }
 
-class Json(private [sonofjson] val value: JValue, ref: Ref = Identity) extends Dynamic with DefaultFormats {
+class Json[+A <: JValue](private [sonofjson] val value: A, ref: Ref = Identity) extends Dynamic with DefaultFormats {
 
   private val formats = DefaultFormats
 

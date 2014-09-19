@@ -20,7 +20,7 @@ package object sonofjson {
           case d: Float => JDouble(d)
           case s: String => JString(s)
           case b: Boolean => JBool(b)
-          case obj: Json => obj.value
+          case obj: Json[_] => obj.value
           case other => throw NotSupportedException("Missing support for " + other.getClass)
         })))
     }
@@ -37,7 +37,7 @@ package object sonofjson {
           case d: Float => JDouble(d)
           case s: String => JString(s)
           case b: Boolean => JBool(b)
-          case obj: Json => obj.value
+          case obj: Json[_] => obj.value
           case other => throw NotSupportedException("Missing support for " + other.getClass)
         }))
     }
