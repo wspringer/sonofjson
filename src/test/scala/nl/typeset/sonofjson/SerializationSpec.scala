@@ -14,14 +14,14 @@ class SerializationSpec extends Specification {
         ),
         numbers = arr(5, 4, 3, 2, 1)
       )
-      println(json.asJson)
-      val parsed = parse(json.asJson)
+      println(render(json))
+      val parsed = parse(render(json))
       parsed.name.first must be equalTo("John")
     }
 
     "preserve special characters" in {
       val s: JValue = "\tfoo"
-      s.asJson must be equalTo("\"\\tfoo\"")
+      render(s) must be equalTo("\"\\tfoo\"")
     }
 
   }

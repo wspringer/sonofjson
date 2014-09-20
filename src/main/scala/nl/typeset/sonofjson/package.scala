@@ -48,75 +48,69 @@ package object model extends Implicits {
       case _ => throw NotSupportedException(s"$this is not something that positional updates")
     }
 
-    def asJson = {
-      val builder = new java.lang.StringBuilder()
-      append(builder)
-      builder.toString
-    }
-
-    def append(out: Appendable)
-
   }
 
-  case class JObject(elements: mutable.Map[String, JValue]) extends JValue {
-    override def append(out: Appendable): Unit = {
-      def render(key: String, value: JValue) = {
-        out.append( s""""${escape(key)}\":""")
-        value.append(out)
-      }
-      @tailrec
-      def renderAll(elements: List[(String, JValue)], prefix: String = "") {
-        if (!elements.isEmpty) {
-          val next = elements.head
-          out.append(prefix)
-          render(next._1, next._2)
-          renderAll(elements.tail, ",")
-        }
-      }
-      out.append("{")
-      renderAll(elements.toList)
-      out.append("}")
-    }
-  }
+  case class JObject(elements: mutable.Map[String, JValue]) extends JValue
 
-  case class JArray(elements: mutable.Buffer[JValue]) extends JValue {
-    override def append(out: Appendable): Unit = {
-      @tailrec
-      def renderAll(elements: List[JValue], prefix: String = "") {
-        if (!elements.isEmpty) {
-          out.append(prefix)
-          elements.head.append(out)
-          renderAll(elements.tail, ",")
-        }
-      }
-      out.append("[")
-      renderAll(elements.toList)
-      out.append("]")
-    }
-  }
+  case class JArray(elements: mutable.Buffer[JValue]) extends JValue
 
-  case class JNumber(value: BigDecimal) extends JValue {
-    override def append(out: Appendable): Unit = out.append(value.toString())
-  }
+  case class JNumber(value: BigDecimal) extends JValue
 
-  case class JBool(value: Boolean) extends JValue {
-    override def append(out: Appendable): Unit = out.append(value.toString)
-  }
+  case class JBool(value: Boolean) extends JValue
 
-  case class JString(value: String) extends JValue {
-    override def append(out: Appendable): Unit =
-      out.append( s""""${escape(value)}"""")
-  }
+  case class JString(value: String) extends JValue
 
-  case object JNull extends JValue {
-    override def append(out: Appendable): Unit = {
-      out.append("null")
-    }
-  }
+  case object JNull extends JValue
 
   def parse(str: String) = Parser.parse(str)
 
   def parse(reader: Reader) = Parser.parse(reader)
+
+  def render(value: JValue, out: Appendable): Unit = value match {
+    case JObject(elements) =>
+      def field(key: String, value: JValue) = {
+        out.append(s""""${escape(key)}\":""")
+        render(value, out)
+      }
+      @tailrec
+      def fields(elements: List[(String, JValue)], prefix: String = "") {
+        if (!elements.isEmpty) {
+          val next = elements.head
+          out.append(prefix)
+          field(next._1, next._2)
+          fields(elements.tail, ",")
+        }
+      }
+      out.append("{")
+      fields(elements.toList)
+      out.append("}")
+    case JArray(elements) =>
+      @tailrec
+      def allElements(elements: List[JValue], prefix: String = "") {
+        if (!elements.isEmpty) {
+          out.append(prefix)
+          render(elements.head, out)
+          allElements(elements.tail, ",")
+        }
+      }
+      out.append("[")
+      allElements(elements.toList)
+      out.append("]")
+    case JString(str) =>
+      out.append(s""""${escape(str)}"""")
+    case JNumber(number) =>
+      out.append(number.toString())
+    case JNull =>
+      out.append("null")
+    case JBool(bool) =>
+      out.append(bool.toString)
+  }
+
+  def render(value: JValue): String = {
+    val builder = new java.lang.StringBuilder()
+    render(value, builder)
+    builder.toString
+  }
 
   object Parser extends JavaTokenParsers {
 
