@@ -6,7 +6,7 @@ class AccessorSpec extends Specification {
 
   val json = parse(
     """
-      |{ "name" : { "first" : "John", "last" : "Doe" }, "age": 41, "married": true }
+      |{ "name" : { "first" : "John", "last" : "Doe" }, "age": 41, "married": true, "numbers": [5, 4, 3] }
     """.stripMargin.trim)
 
   "A JObject" should {
@@ -39,6 +39,10 @@ class AccessorSpec extends Specification {
       // IntelliJ is confused here, but Scala isn't
       val age: Int = json.age
       age must be equalTo(41)
+    }
+
+    "allow you to access array elements by position" in {
+      json.numbers(0).as[Int] must be equalTo(5)
     }
 
   }

@@ -39,6 +39,16 @@ package object model {
         throw NotSupportedException(s"Missing support for extracting ${tag.tpe.typeSymbol.asClass.fullName}} from $this")
       })
 
+    def apply(index: Int) = this match {
+      case JArray(elements) => elements(index)
+      case _ => throw NotSupportedException(s"Missing support for extracting elements by position from $this")
+    }
+
+    def applyDynamic(name: String)(index: Int) = {
+      val named = selectDynamic(name)
+      named.apply(index)
+    }
+
   }
   case class JObject(elements: mutable.Map[String, JValue]) extends JValue
   case class JArray(elements: mutable.Buffer[JValue]) extends JValue
