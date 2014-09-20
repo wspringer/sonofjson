@@ -1,5 +1,7 @@
 package nl.typeset.sonofjson
 
+import java.io.Reader
+
 import scala.collection.mutable
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.input.Position
@@ -15,6 +17,7 @@ package object model {
   case object JNull extends JValue
 
   def parse(str: String) = Parser.parse(str)
+  def parse(reader: Reader) = Parser.parse(reader)
 
   object Parser extends JavaTokenParsers {
 
@@ -34,13 +37,19 @@ package object model {
       flds => JObject(mutable.Map(flds.toSeq: _*))
     }
 
-    def parse(str: String) = parseAll(value, str) match {
-      case Success(result, _) => result
-      case NoSuccess(msg, next) => throw new ParserException(
-        s"Failed to parse JSON: $msg at ${next.pos.toString()}\n${next.pos.longString}",
-        next.pos
-      )
+    def handle[T](result: ParseResult[JValue]): JValue = {
+      result match {
+        case Success(result, _) => result
+        case NoSuccess(msg, next) => throw new ParserException(
+          s"Failed to parse JSON: $msg at ${next.pos.toString()}\n${next.pos.longString}",
+          next.pos
+        )
+      }
     }
+    
+    def parse(str: String) = handle(parseAll(value, str))
+    
+    def parse(reader: Reader) = handle(parseAll(value, reader))
 
   }
 
