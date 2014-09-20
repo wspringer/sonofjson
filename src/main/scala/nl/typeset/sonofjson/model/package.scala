@@ -36,7 +36,7 @@ package object model extends Implicits {
 
     def updateDynamic(name: String)(value: JValue) = this match {
       case JObject(elements) => elements += name -> value
-      case _ => throw NotSupportedException(s"No support for chaning attributes on $this")
+      case _ => throw NotSupportedException(s"No support for setting attributes on $this")
     }
 
   }
