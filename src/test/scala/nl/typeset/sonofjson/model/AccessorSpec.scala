@@ -52,6 +52,11 @@ class AccessorSpec extends Specification {
       json.age must be equalTo(78)
     }
 
+    "allow you to change array values" in {
+      json.numbers(0) = 0
+      json.numbers(0) must be equalTo(0)
+    }
+
   }
 
 }

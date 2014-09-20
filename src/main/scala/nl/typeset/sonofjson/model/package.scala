@@ -39,6 +39,11 @@ package object model extends Implicits {
       case _ => throw NotSupportedException(s"No support for setting attributes on $this")
     }
 
+    def update(index: Int, value: JValue) = this match {
+      case JArray(elements) => elements.update(index, value)
+      case _ => throw NotSupportedException(s"$this is not something that positional updates")
+    }
+
   }
 
   case class JObject(elements: mutable.Map[String, JValue]) extends JValue
