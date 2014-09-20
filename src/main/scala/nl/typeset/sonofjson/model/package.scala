@@ -2,6 +2,7 @@ package nl.typeset.sonofjson
 
 import scala.collection.mutable
 import scala.util.parsing.combinator.JavaTokenParsers
+import scala.util.parsing.input.Position
 
 package object model {
 
@@ -13,19 +14,36 @@ package object model {
   case class JString(value: String) extends JValue
   case object JNull extends JValue
 
+  def parse(str: String) = Parser.parse(str)
+
   object Parser extends JavaTokenParsers {
 
-    def string: Parser[JString] = stringLiteral ^^ JString.apply
+    def stripQuotes(str: String) =
+      str.substring(1, str.length - 1)
+
+    def string: Parser[JString] = stringLiteral ^^ {
+      str => JString(stripQuotes(str))
+    }
     def number: Parser[JNumber] = floatingPointNumber ^^ { str => JNumber(BigDecimal(str)) }
     def bool: Parser[JBool] = (literal("true") | literal("false")) ^^ { str => JBool(str.toBoolean) }
     def `null`: Parser[JNull.type] = literal("null") ^^ { _ => JNull }
     def value: Parser[JValue] = obj | arr | string | number | bool | `null`
     def arr: Parser[JArray] = "[" ~> repsep(value, ",") <~ "]" ^^ { values => JArray(values.toBuffer) }
-    def fld: Parser[(String, JValue)] = stringLiteral ~ (":" ~> value) ^^ { fld => fld._1 -> fld._2 }
+    def fld: Parser[(String, JValue)] = stringLiteral ~ (":" ~> value) ^^ { fld => stripQuotes(fld._1) -> fld._2 }
     def obj: Parser[JObject] = "{" ~> repsep(fld, ",") <~ "}" ^^ {
       flds => JObject(mutable.Map(flds.toSeq: _*))
     }
 
+    def parse(str: String) = parseAll(value, str) match {
+      case Success(result, _) => result
+      case NoSuccess(msg, next) => throw new ParserException(
+        s"Failed to parse JSON: $msg at ${next.pos.toString()}\n${next.pos.longString}",
+        next.pos
+      )
+    }
+
   }
+
+  case class ParserException(msg: String, pos: Position) extends Exception(msg)
 
 }
