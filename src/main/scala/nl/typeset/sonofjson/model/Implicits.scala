@@ -4,23 +4,23 @@ import scala.reflect.runtime.universe._
 
 trait Implicits {
 
-  implicit val IntExtractor: Extractor[Int] = {
+  implicit val IntDecoder: Decoder[Int] = {
     case JNumber(number) => number.toInt
   }
 
-  implicit val DoubleExtractor: Extractor[Double] = {
+  implicit val DoubleDecoder: Decoder[Double] = {
     case JNumber(number) => number.toDouble
   }
 
-  implicit val FloatExtractor: Extractor[Float] = {
+  implicit val FloatDecoder: Decoder[Float] = {
     case JNumber(number) => number.toFloat
   }
 
-  implicit val LongExtractor: Extractor[Long] = {
+  implicit val LongDecoder: Decoder[Long] = {
     case JNumber(number) => number.toLong
   }
 
-  implicit val StringExtractor: Extractor[String] = {
+  implicit val StringDecoder: Decoder[String] = {
     case JString(str) => str
     case JNumber(number) => number.toString()
     case JNull => "null"
@@ -28,15 +28,23 @@ trait Implicits {
     case JBool(bool) => bool.toString
   }
 
-  implicit val BoolExtractor: Extractor[Boolean] = {
+  implicit val BoolDecoder: Decoder[Boolean] = {
     case JBool(bool) => bool
   }
 
-  implicit val BigDecimalExtractor: Extractor[BigDecimal] = {
+  implicit val BigDecimalDecoder: Decoder[BigDecimal] = {
     case JNumber(number) => number
   }
 
-  implicit def jvalueTo[T](value: JValue)(implicit extract: Extractor[T], tag: TypeTag[T]): T =
+  implicit def stringToJValue(str: String) = JString(str)
+  implicit def bigDecimalToJValue(b: BigDecimal) = JNumber(b)
+  implicit def intToJValue(i: Int) = JNumber(BigDecimal(i))
+  implicit def longToJValue(l: Long) = JNumber(BigDecimal(l))
+  implicit def doubleToJValue(d: Double) = JNumber(BigDecimal(d))
+  implicit def floatToJValue(f: Float) = JNumber(BigDecimal(f))
+  implicit def booleanToJValue(b: Boolean) = JBool(b)
+
+  implicit def jvalueTo[T](value: JValue)(implicit extract: Decoder[T], tag: TypeTag[T]): T =
     value.as[T](extract, tag)
 
 }

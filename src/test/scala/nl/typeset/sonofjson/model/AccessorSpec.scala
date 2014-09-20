@@ -45,6 +45,13 @@ class AccessorSpec extends Specification {
       json.numbers(0).as[Int] must be equalTo(5)
     }
 
+    "allow you to set attributes" in {
+      json.name.first = "Jack"
+      json.name.first must be equalTo("Jack")
+      json.age = 78
+      json.age must be equalTo(78)
+    }
+
   }
 
 }

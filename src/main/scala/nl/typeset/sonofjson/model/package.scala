@@ -10,7 +10,7 @@ import scala.language.dynamics
 
 package object model extends Implicits {
 
-  type Extractor[T] = PartialFunction[JValue, T]
+  type Decoder[T] = PartialFunction[JValue, T]
 
   sealed abstract class JValue extends Dynamic {
 
@@ -19,8 +19,8 @@ package object model extends Implicits {
       case _ => throw NotSupportedException( s"""$toString does not have an attribute called "$name"""")
     }
 
-    def as[T](implicit extract: Extractor[T], tag: TypeTag[T]) =
-      extract.applyOrElse(this, { _: JValue =>
+    def as[T](implicit decoder: Decoder[T], tag: TypeTag[T]) =
+      decoder.applyOrElse(this, { _: JValue =>
         throw NotSupportedException(s"Missing support for extracting ${tag.tpe.typeSymbol.asClass.fullName}} from $this")
       })
 
@@ -32,6 +32,11 @@ package object model extends Implicits {
     def applyDynamic(name: String)(index: Int) = {
       val named = selectDynamic(name)
       named.apply(index)
+    }
+
+    def updateDynamic(name: String)(value: JValue) = this match {
+      case JObject(elements) => elements += name -> value
+      case _ => throw NotSupportedException(s"No support for chaning attributes on $this")
     }
 
   }
