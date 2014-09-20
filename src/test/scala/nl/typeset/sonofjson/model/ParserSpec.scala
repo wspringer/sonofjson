@@ -24,6 +24,15 @@ class ParserSpec extends Specification {
       }
     }
 
+    "do something sensible when there's not enough input" in {
+      parse("{ ") must throwA[ParserException].like {
+        case ParserException(msg, pos) =>
+          println(msg)
+          pos.line must be equalTo(1)
+          pos.column must be equalTo(3)
+      }
+    }
+
   }
 
 }
