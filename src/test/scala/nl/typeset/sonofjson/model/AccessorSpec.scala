@@ -4,6 +4,8 @@ import org.specs2.mutable.Specification
 
 class AccessorSpec extends Specification {
 
+  sequential
+
   val json = parse(
     """
       |{ "name" : { "first" : "John", "last" : "Doe" }, "age": 41, "married": true, "numbers": [5, 4, 3] }
@@ -13,10 +15,6 @@ class AccessorSpec extends Specification {
 
     "allow you to access properties by name" in {
       json.name.first.as[String] must be equalTo("John")
-    }
-
-    "consider undefined properties to be of type JUndefined" in {
-      json.employee must be equalTo(JUndefined)
     }
 
     "throw an exception when you try to resolve an attribute on something that doesn't have any" in {

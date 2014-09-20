@@ -24,7 +24,6 @@ trait Implicits {
     case JString(str) => str
     case JNumber(number) => number.toString()
     case JNull => "null"
-    case JUndefined => "#undefined"
     case JBool(bool) => bool.toString
   }
 

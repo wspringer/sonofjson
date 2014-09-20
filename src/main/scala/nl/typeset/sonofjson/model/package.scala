@@ -2,6 +2,7 @@ package nl.typeset.sonofjson
 
 import java.io.Reader
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.input.Position
@@ -15,7 +16,10 @@ package object model extends Implicits {
   sealed abstract class JValue extends Dynamic {
 
     def selectDynamic(name: String): JValue = this match {
-      case JObject(elements) => elements.getOrElse(name, JUndefined)
+      case JObject(elements) => elements.get(name) match {
+        case Some(value) => value
+        case None => throw NotSupportedException( s"""Missing key "$name" for $this""")
+      }
       case _ => throw NotSupportedException( s"""$toString does not have an attribute called "$name"""")
     }
 
@@ -44,21 +48,71 @@ package object model extends Implicits {
       case _ => throw NotSupportedException(s"$this is not something that positional updates")
     }
 
+    def asJson = {
+      val builder = new java.lang.StringBuilder()
+      append(builder)
+      builder.toString
+    }
+
+    def append(out: Appendable)
+
   }
 
-  case class JObject(elements: mutable.Map[String, JValue]) extends JValue
+  case class JObject(elements: mutable.Map[String, JValue]) extends JValue {
+    override def append(out: Appendable): Unit = {
+      def render(key: String, value: JValue) = {
+        out.append( s""""${escape(key)}\":""")
+        value.append(out)
+      }
+      @tailrec
+      def renderAll(elements: List[(String, JValue)], prefix: String = "") {
+        if (!elements.isEmpty) {
+          val next = elements.head
+          out.append(prefix)
+          render(next._1, next._2)
+          renderAll(elements.tail, ",")
+        }
+      }
+      out.append("{")
+      renderAll(elements.toList)
+      out.append("}")
+    }
+  }
 
-  case class JArray(elements: mutable.Buffer[JValue]) extends JValue
+  case class JArray(elements: mutable.Buffer[JValue]) extends JValue {
+    override def append(out: Appendable): Unit = {
+      @tailrec
+      def renderAll(elements: List[JValue], prefix: String = "") {
+        if (!elements.isEmpty) {
+          out.append(prefix)
+          elements.head.append(out)
+          renderAll(elements.tail, ",")
+        }
+      }
+      out.append("[")
+      renderAll(elements.toList)
+      out.append("]")
+    }
+  }
 
-  case class JNumber(value: BigDecimal) extends JValue
+  case class JNumber(value: BigDecimal) extends JValue {
+    override def append(out: Appendable): Unit = out.append(value.toString())
+  }
 
-  case class JBool(value: Boolean) extends JValue
+  case class JBool(value: Boolean) extends JValue {
+    override def append(out: Appendable): Unit = out.append(value.toString)
+  }
 
-  case class JString(value: String) extends JValue
+  case class JString(value: String) extends JValue {
+    override def append(out: Appendable): Unit =
+      out.append( s""""${escape(value)}"""")
+  }
 
-  case object JNull extends JValue
-
-  case object JUndefined extends JValue
+  case object JNull extends JValue {
+    override def append(out: Appendable): Unit = {
+      out.append("null")
+    }
+  }
 
   def parse(str: String) = Parser.parse(str)
 
@@ -109,5 +163,24 @@ package object model extends Implicits {
 
   case class NotSupportedException(msg: String) extends Exception(msg)
 
+  object obj extends Dynamic {
+
+    def applyDynamicNamed(method: String)(args: (String, JValue)*) = method match {
+      case "apply" =>
+        JObject(mutable.Map[String, JValue](args: _*))
+    }
+
+  }
+
+  object arr extends Dynamic {
+    def applyDynamic(method: String)(args: JValue*) = method match {
+      case "apply" =>
+        JArray(mutable.Buffer(args: _*))
+    }
+  }
+
+  // Need a faster and less hacky escaping solution
+  private def escape(raw: String): String =
+    Literal(Constant(raw)).toString.stripPrefix("\"").stripSuffix("\"")
 
 }
