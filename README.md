@@ -31,7 +31,7 @@ A Scala library for dealing with JSON in a way that makes it almost feel native.
 
     person.name.first = "Jack"
 
-⑤ As well as rendering
+⑤ And rendering it to JSON is just
 
     render(person)
 
