@@ -2,6 +2,7 @@
 
 A Scala library for dealing with JSON in a way that makes it almost feel native. If you want to understand how it compares to json4s, you might be interested to read about it [here](http://nxt.flotsam.nl/son-of-json-ii).
 
+
 ① It requires just one import
 
 ```import nl.typeset.sonofjson._```
