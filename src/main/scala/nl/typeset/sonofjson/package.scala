@@ -93,7 +93,7 @@ package object model extends Implicits {
   def render(value: JValue, out: Appendable): Unit = value match {
     case JObject(elements) =>
       def field(key: String, value: JValue) = {
-        out.append(s""""${escape(key)}\":""")
+        out.append(s""""${escape(key)}":""")
         render(value, out)
       }
       @tailrec
