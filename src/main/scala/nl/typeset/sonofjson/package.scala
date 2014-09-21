@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package nl.typeset.sonofjson
+package nl.typeset
 
 import java.io.Reader
 
@@ -33,7 +33,7 @@ import scala.util.parsing.input.Position
 import scala.reflect.runtime.universe._
 import scala.language.dynamics
 
-package object model extends Implicits {
+package object sonofjson extends Implicits {
 
   type Decoder[T] = PartialFunction[JValue, T]
 

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package nl.typeset.sonofjson.model
+package nl.typeset.sonofjson
 
 import scala.reflect.runtime.universe._
 

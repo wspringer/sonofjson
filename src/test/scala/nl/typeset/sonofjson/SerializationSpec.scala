@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package nl.typeset.sonofjson.model
+package nl.typeset.sonofjson
 
 import org.specs2.mutable.Specification
 
