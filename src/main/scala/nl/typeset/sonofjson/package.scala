@@ -27,6 +27,7 @@ package nl.typeset
 import java.io.Reader
 
 import scala.annotation.tailrec
+import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.input.Position
@@ -38,6 +39,19 @@ package object sonofjson extends Implicits {
   type Decoder[T] = PartialFunction[JValue, T]
 
   sealed abstract class JValue extends Dynamic {
+
+    def map[T, K, V](fn: ((JValue, K)) => T)(implicit cbf: CanBuildFrom[JValue, T, V], tag: TypeTag[K]): V = {
+      val builder = cbf.apply(this)
+      this match {
+        case JArray(elements) =>
+          for ((element, index) <- elements.zipWithIndex) {
+            builder += fn((element, index.asInstanceOf[K]))
+          }
+          builder.result()
+        case _ =>
+          builder.result()
+      }
+    }
 
     def selectDynamic(name: String): JValue = this match {
       case JObject(elements) => elements.get(name) match {
