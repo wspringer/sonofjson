@@ -24,9 +24,37 @@
 
 package nl.typeset.sonofjson
 
+import scala.collection.generic.CanBuildFrom
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.runtime.universe._
 
 trait Implicits {
+
+  implicit def function2ToTupled[T, V](fn: (JValue, T) => V) = fn.tupled
+
+  implicit def function1ToTupled[V](fn: JValue => V) = {
+    (value: JValue, key: Any) => fn(value)
+  }.tupled
+
+  implicit def cbf[T, V](implicit converter: T => JValue) = new CanBuildFrom[JValue, T, JArray] {
+    private def newBuilder = new mutable.Builder[T, JArray] {
+      private val buffer = new ArrayBuffer[JValue]
+
+      override def +=(elem: T): this.type = {
+        buffer += converter(elem)
+        this
+      }
+
+      override def result(): JArray = JArray(buffer)
+
+      override def clear(): Unit = buffer.clear()
+    }
+
+    override def apply(from: JValue): mutable.Builder[T, JArray] = newBuilder
+
+    override def apply(): mutable.Builder[T, JArray] = newBuilder
+  }
 
   implicit val IntDecoder: Decoder[Int] = {
     case JNumber(number) => number.toInt
