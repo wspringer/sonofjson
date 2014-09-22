@@ -31,12 +31,6 @@ import scala.reflect.runtime.universe._
 
 trait Implicits {
 
-  implicit def function2ToTupled[T, V](fn: (JValue, T) => V) = fn.tupled
-
-  implicit def function1ToTupled[V](fn: JValue => V) = {
-    (value: JValue, key: Any) => fn(value)
-  }.tupled
-
   implicit def cbf[T, V](implicit converter: T => JValue) = new CanBuildFrom[Seq[JValue], T, JArray] {
     private def newBuilder = new mutable.Builder[T, JArray] {
       private val buffer = new ArrayBuffer[JValue]
