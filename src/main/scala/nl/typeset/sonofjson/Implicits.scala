@@ -31,12 +31,12 @@ import scala.reflect.runtime.universe._
 
 trait Implicits {
 
-  implicit def cbf[T, V](implicit converter: T => JValue) = new CanBuildFrom[Seq[JValue], T, JArray] {
-    private def newBuilder = new mutable.Builder[T, JArray] {
+  implicit def cbf[V] = new CanBuildFrom[Seq[JValue], JValue, JArray] {
+    private def newBuilder = new mutable.Builder[JValue, JArray] {
       private val buffer = new ArrayBuffer[JValue]
 
-      override def +=(elem: T): this.type = {
-        buffer += converter(elem)
+      override def +=(elem: JValue): this.type = {
+        buffer += elem
         this
       }
 
@@ -45,9 +45,9 @@ trait Implicits {
       override def clear(): Unit = buffer.clear()
     }
 
-    override def apply(from: Seq[JValue]): mutable.Builder[T, JArray] = newBuilder
+    override def apply(from: Seq[JValue]): mutable.Builder[JValue, JArray] = newBuilder
 
-    override def apply(): mutable.Builder[T, JArray] = newBuilder
+    override def apply(): mutable.Builder[JValue, JArray] = newBuilder
   }
 
   implicit val IntDecoder: Decoder[Int] = {

@@ -39,6 +39,7 @@ class MappingSpec extends Specification {
     "should allow you to map using a function with only one argument, on an JArray" in {
       val xs = arr(3, 2, 1)
       val doubled = xs.map(double)
+      doubled must beAnInstanceOf[JArray]
       doubled(0) must be equalTo(6)
       doubled(1) must be equalTo(4)
       doubled(2) must be equalTo(2)
@@ -46,7 +47,8 @@ class MappingSpec extends Specification {
 
     "should allow you to map using a for comprehension, on an JArray" in {
       val xs = arr(3, 2, 1)
-      val doubled = for (x <- xs) yield x.as[Int] * 2
+      val doubled = for (x <- xs) yield JNumber(x.as[Int] * 2)
+      doubled must beAnInstanceOf[JArray]
       doubled(0) must be equalTo(6)
     }
 
@@ -58,9 +60,16 @@ class MappingSpec extends Specification {
 
     "should act upon JObject values as well" in {
       val xs = obj(foo = 2, bar = 3)
-      val doubled = for (x <- xs) yield x.as[Int] * 2
+      val doubled = for (x <- xs) yield JNumber(x.as[Int] * 2)
+      doubled must beAnInstanceOf[JArray]
       doubled(0) must be equalTo(4)
       doubled(1) must be equalTo(6)
+    }
+
+    "should not map to a JArray if the elements getting generated are not JValues" in {
+      val xs = arr(3, 2, 1)
+      val ys: Seq[Int] = for (x <- xs) yield x.as[Int] * 2
+      ys must beAnInstanceOf[Seq[Int]]
     }
 
   }
