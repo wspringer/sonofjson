@@ -29,10 +29,10 @@ import java.io.Reader
 import scala.annotation.tailrec
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable
+import scala.language.dynamics
+import scala.reflect.runtime.universe._
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.input.Position
-import scala.reflect.runtime.universe._
-import scala.language.dynamics
 
 package object sonofjson extends Implicits {
 
@@ -40,17 +40,20 @@ package object sonofjson extends Implicits {
 
   sealed abstract class JValue extends Dynamic {
 
-    def map[T, K, V](fn: ((JValue, K)) => T)(implicit cbf: CanBuildFrom[JValue, T, V], tag: TypeTag[K]): V = {
-      val builder = cbf.apply(this)
+    def map[T, V](fn: JValue => T)(implicit cbf: CanBuildFrom[Seq[JValue], T, V]): V = {
+      val builder = cbf()
       this match {
         case JArray(elements) =>
-          for ((element, index) <- elements.zipWithIndex) {
-            builder += fn((element, index.asInstanceOf[K]))
+          for (element <- elements) {
+            builder += fn(element)
           }
-          builder.result()
+        case JObject(elements) =>
+          for ((key, value) <- elements) {
+            builder += fn(value)
+          }
         case _ =>
-          builder.result()
       }
+      builder.result()
     }
 
     def selectDynamic(name: String): JValue = this match {

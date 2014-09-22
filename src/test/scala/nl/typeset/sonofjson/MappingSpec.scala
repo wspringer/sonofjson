@@ -33,23 +33,10 @@ class MappingSpec extends Specification {
     case other => other
   }
 
-  private def addIndex(x: JValue, index: Int) = x match {
-    case JNumber(number) => JNumber(number + index)
-    case other => other
-  }
 
   "JValue" should {
 
-
-    "should allow you to map using a function with two arguments on an Array" in {
-      val xs = arr(3, 2, 1)
-      val added = xs.map(addIndex)
-      added(0) must be equalTo(3)
-      added(1) must be equalTo(3)
-      added(2) must be equalTo(3)
-    }
-
-    "should allow you to map using a function with only one argument, on an Array" in {
+    "should allow you to map using a function with only one argument, on an JArray" in {
       val xs = arr(3, 2, 1)
       val doubled = xs.map(double)
       doubled(0) must be equalTo(6)
@@ -57,14 +44,24 @@ class MappingSpec extends Specification {
       doubled(2) must be equalTo(2)
     }
 
-    "should allow you map using a for comprehension, on an Array" in {
-//      val xs = arr(3, 2, 1)
-//      val doubled = for ((value: JValue, index: Int) <- xs) println(value)
-//      doubled(0) must be equalTo(6)
-//      doubled(1) must be equalTo(4)
-//      doubled(2) must be equalTo(2)
-      ko
-    }.pendingUntilFixed("- which currently doesn't work")
+    "should allow you to map using a for comprehension, on an JArray" in {
+      val xs = arr(3, 2, 1)
+      val doubled = for (x <- xs) yield x.as[Int] * 2
+      doubled(0) must be equalTo(6)
+    }
+
+    "should allow you to map to something else than a JArray" in {
+      val xs = arr(3, 2, 1)
+      val ys = for (x <- xs) yield List.fill(x.as[Int])("foo") // Not something we can convert into JArray
+      ys must beAnInstanceOf[List[List[String]]]
+    }
+
+    "should act upon JObject values as well" in {
+      val xs = obj(foo = 2, bar = 3)
+      val doubled = for (x <- xs) yield x.as[Int] * 2
+      doubled(0) must be equalTo(4)
+      doubled(1) must be equalTo(6)
+    }
 
   }
 

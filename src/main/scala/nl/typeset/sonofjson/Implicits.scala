@@ -37,7 +37,7 @@ trait Implicits {
     (value: JValue, key: Any) => fn(value)
   }.tupled
 
-  implicit def cbf[T, V](implicit converter: T => JValue) = new CanBuildFrom[JValue, T, JArray] {
+  implicit def cbf[T, V](implicit converter: T => JValue) = new CanBuildFrom[Seq[JValue], T, JArray] {
     private def newBuilder = new mutable.Builder[T, JArray] {
       private val buffer = new ArrayBuffer[JValue]
 
@@ -51,7 +51,7 @@ trait Implicits {
       override def clear(): Unit = buffer.clear()
     }
 
-    override def apply(from: JValue): mutable.Builder[T, JArray] = newBuilder
+    override def apply(from: Seq[JValue]): mutable.Builder[T, JArray] = newBuilder
 
     override def apply(): mutable.Builder[T, JArray] = newBuilder
   }
