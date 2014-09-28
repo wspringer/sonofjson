@@ -26,51 +26,14 @@ package nl.typeset.sonofjson
 
 import org.specs2.mutable.Specification
 
+/**
+ * Not actually testing the map operation on JValue, since that has been removed.
+ *
+ * @see http://nxt.flotsam.nl/i-have-no-map
+ */
 class MappingSpec extends Specification {
 
-  private def double(x: JValue): JValue = x match {
-    case JNumber(number) => JNumber(number * 2)
-    case other => other
-  }
-
-
   "JValue" should {
-
-    "allow you to map using a function with only one argument, on an JArray" in {
-      val xs = arr(3, 2, 1)
-      val doubled = xs.map(double)
-      doubled must beAnInstanceOf[JArray]
-      doubled(0) must be equalTo(6)
-      doubled(1) must be equalTo(4)
-      doubled(2) must be equalTo(2)
-    }
-
-    "allow you to map using a for comprehension, on an JArray" in {
-      val xs = arr(3, 2, 1)
-      val doubled = for (x <- xs) yield JNumber(x.as[Int] * 2)
-      doubled must beAnInstanceOf[JArray]
-      doubled(0) must be equalTo(6)
-    }
-
-    "allow you to map to something else than a JArray" in {
-      val xs = arr(3, 2, 1)
-      val ys = for (x <- xs) yield List.fill(x.as[Int])("foo") // Not something we can convert into JArray
-      ys must beAnInstanceOf[List[List[String]]]
-    }
-
-    "act upon JObject values as well" in {
-      val xs = obj(foo = 2, bar = 3)
-      val doubled = for (x <- xs) yield JNumber(x.as[Int] * 2)
-      doubled must beAnInstanceOf[JArray]
-      doubled(0) must be equalTo(4)
-      doubled(1) must be equalTo(6)
-    }
-
-    "not map to a JArray if the elements getting generated are not JValues" in {
-      val xs = arr(3, 2, 1)
-      val ys: Seq[Int] = for (x <- xs) yield x.as[Int] * 2
-      ys must beAnInstanceOf[Seq[Int]]
-    }
 
     "support as for mapping other things" in {
       val xs = arr(3, 2, 1)
@@ -92,7 +55,6 @@ class MappingSpec extends Specification {
       val value: JValue = Map("first" -> 1, "second" -> true)
       value must beAnInstanceOf[JObject]
     }
-
 
   }
 
