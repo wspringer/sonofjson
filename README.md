@@ -11,10 +11,10 @@ A Scala library for dealing with JSON in a way that makes it almost feel native.
 
 ② Creating an object is easy
 
-    // Parsing it
+    // You can parse it from a String
     val person = parse("""{ "name" : { "first" : "John", "last" : "Doe" } }""")
     
-    // Building it
+    // Or build it yourself
     val person = obj(
       name = obj(
          first = "John",
