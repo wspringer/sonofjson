@@ -28,10 +28,10 @@ import java.io.Reader
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.language.dynamics
+import scala.reflect.runtime.universe._
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.input.Position
-import scala.reflect.runtime.universe._
-import scala.language.dynamics
 
 package object sonofjson extends Implicits {
 

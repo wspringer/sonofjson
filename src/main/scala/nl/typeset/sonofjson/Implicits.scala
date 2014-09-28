@@ -24,9 +24,31 @@
 
 package nl.typeset.sonofjson
 
+import scala.collection.generic.CanBuildFrom
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.runtime.universe._
 
 trait Implicits {
+
+  implicit def cbf[V] = new CanBuildFrom[Seq[JValue], JValue, JArray] {
+    private def newBuilder = new mutable.Builder[JValue, JArray] {
+      private val buffer = new ArrayBuffer[JValue]
+
+      override def +=(elem: JValue): this.type = {
+        buffer += elem
+        this
+      }
+
+      override def result(): JArray = JArray(buffer)
+
+      override def clear(): Unit = buffer.clear()
+    }
+
+    override def apply(from: Seq[JValue]): mutable.Builder[JValue, JArray] = newBuilder
+
+    override def apply(): mutable.Builder[JValue, JArray] = newBuilder
+  }
 
   implicit val IntDecoder: Decoder[Int] = {
     case JNumber(number) => number.toInt
@@ -59,6 +81,14 @@ trait Implicits {
     case JNumber(number) => number
   }
 
+  implicit def ListDecoder[T](implicit decoder: Decoder[T]): Decoder[List[T]] = {
+    case JArray(elements) => elements.toList.map(decoder)
+  }
+
+  implicit def MapDecoder[T](implicit decoder: Decoder[T]): Decoder[Map[String, T]] = {
+    case JObject(elements) => elements.toMap.mapValues(decoder)
+  }
+
   implicit def stringToJValue(str: String) = JString(str)
   implicit def bigDecimalToJValue(b: BigDecimal) = JNumber(b)
   implicit def intToJValue(i: Int) = JNumber(BigDecimal(i))
@@ -66,6 +96,25 @@ trait Implicits {
   implicit def doubleToJValue(d: Double) = JNumber(BigDecimal(d))
   implicit def floatToJValue(f: Float) = JNumber(BigDecimal(f))
   implicit def booleanToJValue(b: Boolean) = JBool(b)
+  implicit def listToJValue[T](lst: List[T]) =
+    JArray(lst.toBuffer.map(anyToJValue))
+  implicit def mapToJValue[T](map: Map[String, T]) =
+    JObject(mutable.Map(
+      (for ((key, value) <- map.toSeq) yield {
+        key -> anyToJValue(value)
+      }): _*
+    ))
+  def anyToJValue[T](value: Any): JValue = value match {
+    case str: String => stringToJValue(str)
+    case b: BigDecimal => bigDecimalToJValue(b)
+    case i: Int => intToJValue(i)
+    case l: Long => longToJValue(l)
+    case d: Double => doubleToJValue(d)
+    case f: Float => floatToJValue(f)
+    case b: Boolean => booleanToJValue(b)
+    case l: List[_] => listToJValue(l)
+    case m: Map[_, _] => mapToJValue(m.asInstanceOf[Map[String, _]])
+  }
 
   implicit def jvalueTo[T](value: JValue)(implicit extract: Decoder[T], tag: TypeTag[T]): T =
     value.as[T](extract, tag)
