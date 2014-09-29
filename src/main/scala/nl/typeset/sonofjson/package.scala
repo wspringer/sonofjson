@@ -35,6 +35,20 @@ import scala.util.parsing.input.Position
 
 package object sonofjson extends Implicits {
 
+  implicit class JsonStingInterpolation(val sc: StringContext) extends AnyVal {
+      def json(args: Any*): JValue = {
+        val strings = sc.parts.iterator
+        val expressions = args.iterator
+        var buf = new StringBuffer(strings.next)
+        while(strings.hasNext) {
+          buf append expressions.next
+          buf append strings.next
+        }
+        parse(buf toString)
+      }
+    }
+
+
   type Decoder[T] = PartialFunction[JValue, T]
 
   sealed abstract class JValue extends Dynamic {
