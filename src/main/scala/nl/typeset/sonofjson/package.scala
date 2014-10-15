@@ -52,14 +52,15 @@ package object sonofjson extends Implicits {
         throw NotSupportedException(s"Missing support for extracting ${tag.tpe.typeSymbol.asClass.fullName}} from $this")
       })
 
-    def apply(index: Int) = this match {
-      case JArray(elements) => elements(index)
+    def apply(key: Any) = (this, key) match {
+      case (JArray(elements), index: Int) => elements(index)
+      case (JObject(elements), name: String) => elements(name)
       case _ => throw NotSupportedException(s"Missing support for extracting elements by position from $this")
     }
 
-    def applyDynamic(name: String)(index: Int) = {
+    def applyDynamic(name: String)(key: Any) = {
       val named = selectDynamic(name)
-      named.apply(index)
+      named.apply(key)
     }
 
     def updateDynamic(name: String)(value: JValue) = this match {
@@ -67,8 +68,9 @@ package object sonofjson extends Implicits {
       case _ => throw NotSupportedException(s"No support for setting attributes on $this")
     }
 
-    def update(index: Int, value: JValue) = this match {
-      case JArray(elements) => elements.update(index, value)
+    def update(key: Any, value: JValue) = (this, key) match {
+      case (JArray(elements), index: Int) => elements.update(index, value)
+      case (JObject(elements), name: String) => elements.put(name, value)
       case _ => throw NotSupportedException(s"$this is not something that positional updates")
     }
 

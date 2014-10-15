@@ -41,6 +41,19 @@ class AccessorSpec extends Specification {
       json.name.first.as[String] must be equalTo("John")
     }
 
+    "allow you to access properties by name with array notation" in {
+      json("name").first.as[String] must be equalTo("John")
+    }
+
+    "allow you to access nested properties by name with array notation" in {
+      json.name("first").as[String] must be equalTo("John")
+    }
+
+    "allow you to modify nested properties by name with array notation" in {
+      json.name("first") = "Charly"
+      json.name.first.as[String] must be equalTo("Charly")
+    }
+
     "throw an exception when you try to resolve an attribute on something that doesn't have any" in {
       json.employee.name must throwA[NotSupportedException]
     }
