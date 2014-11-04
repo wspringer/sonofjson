@@ -1,4 +1,4 @@
-![Build status](https://travis-ci.org/wspringer/sonofjson.svg?branch=master)
+[![Build status](https://travis-ci.org/wspringer/sonofjson.svg?branch=master)](https://travis-ci.org/wspringer/sonofjson)
 
 # SON of JSON
 
