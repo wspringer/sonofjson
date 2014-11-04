@@ -85,10 +85,6 @@ trait Implicits {
     case JArray(elements) => elements.toList.map(decoder)
   }
 
-  implicit def MapDecoder[T](implicit decoder: Decoder[T]): Decoder[Map[String, T]] = {
-    case JObject(elements) => elements.toMap.mapValues(decoder)
-  }
-
   implicit def stringToJValue(str: String) = JString(str)
   implicit def bigDecimalToJValue(b: BigDecimal) = JNumber(b)
   implicit def intToJValue(i: Int) = JNumber(BigDecimal(i))
