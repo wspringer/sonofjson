@@ -30,6 +30,18 @@ class ParserSpec extends Specification {
 
   "The parser" should {
 
+    "be able to work with String Interpolation  " in {
+      json"""
+        {
+            "name" : "zhijia,.zhang",
+            "age" : 25
+        }
+      """ must beLike {
+        case JObject(obj) =>
+          obj.get("name") must beSome
+      }
+    }
+
     "be able to parse an object" in {
       val json = """
         |{ "person" : { "first" : "John", "last": "Doe" } }
