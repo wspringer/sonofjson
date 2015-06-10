@@ -1,10 +1,12 @@
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
-crossScalaVersions := Seq("2.11.4", "2.10.4")
+crossScalaVersions := Seq("2.11.6", "2.10.5")
 
 name := "sonofjson"
 
-version := "0.1-SNAPSHOT"
+version := "0.1"
+
+organization := "nl.typeset"
 
 libraryDependencies ++= {
   CrossVersion.partialVersion(scalaVersion.value) match {
